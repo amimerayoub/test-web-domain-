@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>DomainKit — Domain API Suite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:       #080b10;
+  --bg2:      #0d1117;
+  --bg3:      #111820;
+  --border:   rgba(255,255,255,0.07);
+  --border2:  rgba(255,255,255,0.13);
+  --accent:   #00e5ff;
+  --accent2:  #7c3aed;
+  --green:    #00ff88;
+  --red:      #ff4466;
+  --amber:    #ffb830;
+  --text:     rgba(255,255,255,0.92);
+  --muted:    rgba(255,255,255,0.45);
+  --mono:     'JetBrains Mono', monospace;
+  --sans:     'Outfit', sans-serif;
+  --display:  'Syne', sans-serif;
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top:0; left:0; right:0; z-index:100;
+  display: flex; align-items:center; justify-content:space-between;
+  padding: 0 2rem; height:60px;
+  background: rgba(8,11,16,0.85);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+  font-family: var(--display);
+  font-weight: 800; font-size:1.2rem; letter-spacing:-.5px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  text-decoration:none;
+}
+.nav-links { display:flex; gap:.25rem; }
+.nav-links a {
+  font-size:.82rem; color:var(--muted); text-decoration:none;
+  padding:.35rem .75rem; border-radius:6px;
+  transition: color .15s, background .15s;
+}
+.nav-links a:hover { color:var(--text); background:rgba(255,255,255,.05); }
+.nav-badge {
+  font-size:.72rem; font-weight:500; padding:.25rem .65rem;
+  border-radius:999px; background:rgba(0,229,255,.12);
+  color:var(--accent); border:1px solid rgba(0,229,255,.25);
+  font-family:var(--mono);
+}
+
+/* ── HERO ── */
+.hero {
+  min-height:100vh; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  text-align:center; padding:5rem 2rem 4rem;
+  position:relative; overflow:hidden;
+}
+.hero::before {
+  content:''; position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,229,255,.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(124,58,237,.07) 0%, transparent 60%);
+  pointer-events:none;
+}
+.hero-eyebrow {
+  font-family:var(--mono); font-size:.75rem;
+  color:var(--accent); letter-spacing:.15em; text-transform:uppercase;
+  margin-bottom:1.5rem;
+  display:flex; align-items:center; gap:.6rem;
+}
+.hero-eyebrow::before, .hero-eyebrow::after {
+  content:''; display:block; height:1px; width:2rem;
+  background:var(--accent); opacity:.5;
+}
+.hero h1 {
+  font-family:var(--display);
+  font-size:clamp(2.8rem,7vw,5.5rem);
+  font-weight:800; line-height:1.05; letter-spacing:-.03em;
+  margin-bottom:1.5rem;
+}
+.hero h1 span {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+}
+.hero p {
+  font-size:1.1rem; color:var(--muted); max-width:540px;
+  margin:0 auto 2.5rem; font-weight:300;
+}
+.hero-cta { display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; }
+.btn-primary {
+  padding:.75rem 2rem; border-radius:8px; font-size:.9rem; font-weight:500;
+  background:var(--accent); color:#080b10; border:none; cursor:pointer;
+  font-family:var(--sans); text-decoration:none; display:inline-block;
+  transition: transform .15s, box-shadow .15s;
+  box-shadow: 0 0 24px rgba(0,229,255,.25);
+}
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 4px 32px rgba(0,229,255,.4); }
+.btn-outline {
+  padding:.75rem 2rem; border-radius:8px; font-size:.9rem; font-weight:500;
+  background:transparent; color:var(--text); border:1px solid var(--border2);
+  cursor:pointer; font-family:var(--sans); text-decoration:none; display:inline-block;
+  transition: border-color .15s, background .15s;
+}
+.btn-outline:hover { border-color:var(--accent); background:rgba(0,229,255,.05); }
+
+/* ── GRID STATS ── */
+.stats {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:1px;
+  background:var(--border); border:1px solid var(--border);
+  border-radius:12px; overflow:hidden; margin:3rem auto 0; max-width:540px; width:100%;
+}
+.stat { background:var(--bg2); padding:1.25rem 1rem; text-align:center; }
+.stat-val { font-family:var(--display); font-size:2rem; font-weight:800; color:var(--accent); }
+.stat-lab { font-size:.75rem; color:var(--muted); margin-top:.2rem; }
+
+/* ── SECTION ── */
+section { padding:5rem 2rem; max-width:1100px; margin:0 auto; }
+.section-label {
+  font-family:var(--mono); font-size:.72rem; color:var(--accent);
+  letter-spacing:.15em; text-transform:uppercase; margin-bottom:.75rem;
+}
+.section-title {
+  font-family:var(--display); font-size:clamp(1.8rem,4vw,2.8rem);
+  font-weight:800; line-height:1.1; letter-spacing:-.02em; margin-bottom:1rem;
+}
+.section-sub { font-size:1rem; color:var(--muted); max-width:500px; font-weight:300; }
+
+/* ── API CARDS ── */
+.api-grid {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:1.5rem; margin-top:3rem;
+}
+.api-card {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:16px; padding:1.75rem; position:relative; overflow:hidden;
+  transition:border-color .2s, transform .2s, box-shadow .2s;
+}
+.api-card:hover {
+  border-color:var(--border2); transform:translateY(-3px);
+  box-shadow:0 12px 40px rgba(0,0,0,.4);
+}
+.api-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+}
+.api-card.cyan::before { background:linear-gradient(90deg, var(--accent), transparent); }
+.api-card.purple::before { background:linear-gradient(90deg, var(--accent2), transparent); }
+.api-card.green::before { background:linear-gradient(90deg, var(--green), transparent); }
+
+.api-num {
+  font-family:var(--mono); font-size:.7rem; color:var(--muted);
+  margin-bottom:1rem; display:block;
+}
+.api-card h3 {
+  font-family:var(--display); font-size:1.25rem; font-weight:700;
+  margin-bottom:.5rem;
+}
+.api-card p { font-size:.88rem; color:var(--muted); line-height:1.7; margin-bottom:1.25rem; }
+.api-endpoint {
+  font-family:var(--mono); font-size:.75rem;
+  background:rgba(0,0,0,.4); border:1px solid var(--border);
+  border-radius:6px; padding:.5rem .75rem; color:var(--accent);
+  display:block; margin-bottom:1rem; word-break:break-all;
+}
+.tags { display:flex; gap:.4rem; flex-wrap:wrap; }
+.tag {
+  font-size:.68rem; font-family:var(--mono);
+  padding:.2rem .55rem; border-radius:999px;
+  background:rgba(255,255,255,.06); color:var(--muted);
+  border:1px solid var(--border);
+}
+.tag.green { background:rgba(0,255,136,.08); color:var(--green); border-color:rgba(0,255,136,.2); }
+.tag.cyan  { background:rgba(0,229,255,.08); color:var(--accent); border-color:rgba(0,229,255,.2); }
+.tag.purple{ background:rgba(124,58,237,.1); color:#a78bfa; border-color:rgba(124,58,237,.25); }
+
+/* ── PLAYGROUND ── */
+#playground { max-width:1100px; }
+.tabs {
+  display:flex; gap:.5rem; margin-bottom:2rem; flex-wrap:wrap;
+}
+.tab {
+  padding:.55rem 1.25rem; border-radius:8px; font-size:.83rem; font-weight:500;
+  background:transparent; color:var(--muted); border:1px solid var(--border);
+  cursor:pointer; font-family:var(--sans); transition:all .15s;
+}
+.tab.active {
+  background:rgba(0,229,255,.1); color:var(--accent);
+  border-color:rgba(0,229,255,.3);
+}
+.panel { display:none; }
+.panel.active { display:block; }
+
+.form-row { display:grid; grid-template-columns:1fr auto; gap:.75rem; margin-bottom:1rem; }
+.form-full { grid-column:1/-1; }
+input[type=text], input[type=url] {
+  width:100%; padding:.7rem 1rem; border-radius:8px;
+  background:var(--bg3); border:1px solid var(--border);
+  color:var(--text); font-size:.88rem; font-family:var(--sans);
+  outline:none; transition:border-color .15s;
+}
+input:focus { border-color:var(--accent); }
+input::placeholder { color:var(--muted); }
+
+.btn-run {
+  padding:.7rem 1.5rem; border-radius:8px; font-size:.88rem; font-weight:500;
+  background:var(--accent); color:#080b10; border:none; cursor:pointer;
+  font-family:var(--sans); white-space:nowrap;
+  transition: transform .1s, box-shadow .15s; flex-shrink:0;
+}
+.btn-run:hover { transform:translateY(-1px); box-shadow:0 4px 20px rgba(0,229,255,.35); }
+.btn-run:disabled { background:#1a2a2a; color:var(--muted); cursor:not-allowed; box-shadow:none; transform:none; }
+
+.result-box {
+  background:var(--bg3); border:1px solid var(--border);
+  border-radius:12px; overflow:hidden; min-height:200px;
+}
+.result-topbar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:.6rem 1rem; border-bottom:1px solid var(--border);
+  background:rgba(0,0,0,.2);
+}
+.result-label { font-family:var(--mono); font-size:.72rem; color:var(--muted); }
+.result-status { font-family:var(--mono); font-size:.72rem; }
+.status-ok    { color:var(--green); }
+.status-err   { color:var(--red); }
+.status-idle  { color:var(--muted); }
+.result-body {
+  padding:1.25rem; font-family:var(--mono); font-size:.78rem;
+  line-height:1.75; max-height:520px; overflow-y:auto;
+  white-space:pre-wrap; word-break:break-all;
+  color:#b0c4d8;
+}
+.result-body::-webkit-scrollbar { width:4px; }
+.result-body::-webkit-scrollbar-thumb { background:var(--border2); border-radius:4px; }
+
+/* ── VISUAL RESULTS ── */
+.domain-chips { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:1rem; }
+.chip {
+  font-family:var(--mono); font-size:.75rem;
+  padding:.3rem .75rem; border-radius:999px; border:1px solid;
+  display:flex; align-items:center; gap:.4rem;
+}
+.chip-avail { background:rgba(0,255,136,.08); color:var(--green); border-color:rgba(0,255,136,.25); }
+.chip-taken { background:rgba(255,68,102,.06); color:var(--red); border-color:rgba(255,68,102,.2); }
+.chip-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.chip-avail .chip-dot { background:var(--green); }
+.chip-taken .chip-dot { background:var(--red); }
+
+/* ── AGE DISPLAY ── */
+.age-card {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:12px; padding:1.5rem; margin-top:1rem;
+}
+.age-big {
+  font-family:var(--display); font-size:2.2rem; font-weight:800;
+  color:var(--accent); line-height:1; margin-bottom:.5rem;
+}
+.age-sub { font-size:.85rem; color:var(--muted); margin-bottom:1.5rem; }
+.age-grid {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:.75rem;
+}
+.age-item {
+  background:var(--bg3); border:1px solid var(--border);
+  border-radius:8px; padding:.85rem 1rem;
+}
+.age-item-label { font-size:.7rem; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:.3rem; }
+.age-item-val { font-family:var(--mono); font-size:.85rem; color:var(--text); }
+
+/* ── SUMMARY BAR ── */
+.summary-bar {
+  display:flex; gap:1.5rem; flex-wrap:wrap;
+  padding:1rem 1.25rem; background:var(--bg3);
+  border:1px solid var(--border); border-radius:10px; margin-bottom:1rem;
+}
+.sum-item { display:flex; flex-direction:column; gap:.2rem; }
+.sum-label { font-size:.68rem; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
+.sum-val { font-family:var(--display); font-size:1.4rem; font-weight:700; }
+.sum-val.green { color:var(--green); }
+.sum-val.red   { color:var(--red); }
+.sum-val.cyan  { color:var(--accent); }
+
+/* ── CODE BLOCK ── */
+.code-block {
+  background:var(--bg3); border:1px solid var(--border);
+  border-radius:10px; overflow:hidden; margin-bottom:1rem;
+}
+.code-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:.5rem 1rem; border-bottom:1px solid var(--border);
+  font-family:var(--mono); font-size:.72rem; color:var(--muted);
+}
+.copy-btn {
+  background:none; border:1px solid var(--border); color:var(--muted);
+  border-radius:4px; padding:.15rem .5rem; font-size:.68rem;
+  cursor:pointer; font-family:var(--mono); transition:all .15s;
+}
+.copy-btn:hover { border-color:var(--accent); color:var(--accent); }
+.code-block pre {
+  font-family:var(--mono); font-size:.78rem; padding:1rem;
+  overflow-x:auto; color:#b0c4d8; line-height:1.7;
+}
+
+/* ── SPINNER ── */
+.spin {
+  display:inline-block; width:16px; height:16px;
+  border:2px solid rgba(0,229,255,.2); border-top-color:var(--accent);
+  border-radius:50%; animation:spin .7s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* ── DOCS TABLE ── */
+.docs-table { width:100%; border-collapse:collapse; font-size:.83rem; margin-top:1rem; }
+.docs-table th {
+  text-align:left; padding:.6rem 1rem; font-family:var(--mono);
+  font-size:.7rem; color:var(--muted); font-weight:500;
+  border-bottom:1px solid var(--border); text-transform:uppercase; letter-spacing:.06em;
+}
+.docs-table td {
+  padding:.65rem 1rem; border-bottom:1px solid rgba(255,255,255,.04);
+  vertical-align:top;
+}
+.docs-table tr:last-child td { border:none; }
+.docs-table td:first-child { font-family:var(--mono); font-size:.78rem; color:var(--accent); }
+.docs-table td:nth-child(2) { font-family:var(--mono); font-size:.75rem; color:#a78bfa; }
+.required { color:var(--green); font-family:var(--mono); font-size:.72rem; }
+.optional  { color:var(--muted); font-family:var(--mono); font-size:.72rem; }
+
+/* ── FOOTER ── */
+footer {
+  border-top:1px solid var(--border); padding:3rem 2rem;
+  text-align:center; color:var(--muted); font-size:.83rem;
+}
+footer strong { color:var(--text); }
+
+/* ── SCROLL REVEAL ── */
+.reveal {
+  opacity:0; transform:translateY(20px);
+  transition:opacity .5s ease, transform .5s ease;
+}
+.reveal.visible { opacity:1; transform:none; }
+
+/* ── RESPONSIVE ── */
+@media(max-width:640px) {
+  .form-row { grid-template-columns:1fr; }
+  .stats    { grid-template-columns:1fr; }
+  nav       { padding:0 1rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="/">DomainKit</a>
+  <div class="nav-links">
+    <a href="#apis">APIs</a>
+    <a href="#playground">Playground</a>
+    <a href="#docs">Docs</a>
+  </div>
+  <span class="nav-badge">v1.0</span>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Free · No API Key · Vercel Ready</div>
+  <h1>The Domain<br><span>API Toolkit</span></h1>
+  <p>Three powerful APIs in one project — bulk availability, domain age, and social media checks. Deploy to Vercel in 60 seconds.</p>
+  <div class="hero-cta">
+    <a href="#playground" class="btn-primary">Try Live Demo</a>
+    <a href="#apis" class="btn-outline">View APIs</a>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-val">3</div><div class="stat-lab">APIs</div></div>
+    <div class="stat"><div class="stat-val">59</div><div class="stat-lab">Platforms Checked</div></div>
+    <div class="stat"><div class="stat-val">0</div><div class="stat-lab">API Keys Needed</div></div>
+  </div>
+</div>
+
+<!-- APIS SECTION -->
+<section id="apis" class="reveal">
+  <div class="section-label">// apis</div>
+  <h2 class="section-title">Three APIs.<br>One Deploy.</h2>
+  <p class="section-sub">All backed by official registries and real-time data sources.</p>
+
+  <div class="api-grid">
+
+    <div class="api-card cyan">
+      <span class="api-num">01 / Bulk Check</span>
+      <h3>Bulk Availability</h3>
+      <p>Check up to 100 domain names across multiple TLDs in a single request. Powered by Verisign — the .com/.net registry operator.</p>
+      <code class="api-endpoint">GET /api/bulk-check?names=Zynora,Veltrix&tlds=com,io,ai</code>
+      <div class="tags">
+        <span class="tag cyan">Verisign</span>
+        <span class="tag green">100 names/req</span>
+        <span class="tag">Auto-batch</span>
+        <span class="tag">Register links</span>
+      </div>
+    </div>
+
+    <div class="api-card purple">
+      <span class="api-num">02 / Domain Age</span>
+      <h3>Age & RDAP Info</h3>
+      <p>Get full domain registration history — age, registration date, expiry, registrar, nameservers, DNSSEC status and more via RDAP.</p>
+      <code class="api-endpoint">GET /api/domain-age?domain=admin.com</code>
+      <div class="tags">
+        <span class="tag purple">RDAP Official</span>
+        <span class="tag green">Free</span>
+        <span class="tag">30+ TLDs</span>
+        <span class="tag">Auto-fallback</span>
+      </div>
+    </div>
+
+    <div class="api-card green">
+      <span class="api-num">03 / Name Check</span>
+      <h3>Domains + Social</h3>
+      <p>Check a brand name across 28 domain extensions AND 31 social media platforms simultaneously. Available, taken, or unknown status.</p>
+      <code class="api-endpoint">GET /api/check?q=mybrand&type=all</code>
+      <div class="tags">
+        <span class="tag green">28 TLDs</span>
+        <span class="tag cyan">31 Social</span>
+        <span class="tag">Profile URLs</span>
+        <span class="tag">Parallel</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- PLAYGROUND -->
+<section id="playground" class="reveal" style="padding-top:2rem">
+  <div class="section-label">// live playground</div>
+  <h2 class="section-title">Try It Now</h2>
+  <p class="section-sub" style="margin-bottom:2rem">Run live requests against the real API endpoints.</p>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('bulk')">⚡ Bulk Availability</button>
+    <button class="tab"        onclick="switchTab('age')">📅 Domain Age</button>
+    <button class="tab"        onclick="switchTab('check')">🔍 Brand Check</button>
+  </div>
+
+  <!-- BULK TAB -->
+  <div id="tab-bulk" class="panel active">
+    <div class="form-row">
+      <input type="text" id="bulk-names" value="Datafyno,Profitlyo,Nexavo,Zynora,Lunexa,Veltrix" placeholder="Domain names (comma-separated, no .com)"/>
+      <button class="btn-run" onclick="runBulk()">Run</button>
+    </div>
+    <div class="form-row">
+      <input type="text" id="bulk-tlds" value="com,io,ai" placeholder="TLDs: com,net,io,ai,app"/>
+    </div>
+    <div id="bulk-chips" class="domain-chips"></div>
+    <div class="result-box" style="margin-top:1rem">
+      <div class="result-topbar">
+        <span class="result-label">POST /api/bulk-check</span>
+        <span class="result-status status-idle" id="bulk-status">idle</span>
+      </div>
+      <div class="result-body" id="bulk-result">// Press Run to check domain availability...</div>
+    </div>
+  </div>
+
+  <!-- AGE TAB -->
+  <div id="tab-age" class="panel">
+    <div class="form-row">
+      <input type="text" id="age-domain" value="admin.com" placeholder="Domain: example.com"/>
+      <button class="btn-run" onclick="runAge()">Run</button>
+    </div>
+    <div id="age-card"></div>
+    <div class="result-box" style="margin-top:1rem">
+      <div class="result-topbar">
+        <span class="result-label">GET /api/domain-age</span>
+        <span class="result-status status-idle" id="age-status">idle</span>
+      </div>
+      <div class="result-body" id="age-result">// Press Run to look up domain age...</div>
+    </div>
+  </div>
+
+  <!-- CHECK TAB -->
+  <div id="tab-check" class="panel">
+    <div class="form-row">
+      <input type="text" id="check-q" value="mybrand" placeholder="Brand name (e.g. mybrand)"/>
+      <button class="btn-run" onclick="runCheck()">Run</button>
+    </div>
+    <div class="form-row">
+      <select id="check-type" style="padding:.7rem 1rem;border-radius:8px;background:var(--bg3);border:1px solid var(--border);color:var(--text);font-family:var(--sans);font-size:.88rem;outline:none;">
+        <option value="all">All (Domains + Social)</option>
+        <option value="domains">Domains only</option>
+        <option value="social">Social only</option>
+      </select>
+    </div>
+    <div id="check-summary"></div>
+    <div id="check-chips" class="domain-chips"></div>
+    <div class="result-box" style="margin-top:1rem">
+      <div class="result-topbar">
+        <span class="result-label">GET /api/check</span>
+        <span class="result-status status-idle" id="check-status">idle</span>
+      </div>
+      <div class="result-body" id="check-result">// Press Run to check brand availability...</div>
+    </div>
+  </div>
+</section>
+
+<!-- DOCS SECTION -->
+<section id="docs" class="reveal">
+  <div class="section-label">// documentation</div>
+  <h2 class="section-title">API Reference</h2>
+
+  <!-- Bulk Check Docs -->
+  <div style="margin-top:2.5rem">
+    <h3 style="font-family:var(--display);font-size:1.3rem;font-weight:700;margin-bottom:.5rem;color:var(--accent)">
+      01 — Bulk Domain Check
+    </h3>
+    <p style="color:var(--muted);font-size:.88rem;margin-bottom:1rem">
+      Check up to 100 names × 10 TLDs per request. Uses Verisign's official bulk-check API.
+    </p>
+    <div class="code-block">
+      <div class="code-header">
+        <span>cURL</span>
+        <button class="copy-btn" onclick="copyCode(this)">copy</button>
+      </div>
+      <pre>curl "https://your-app.vercel.app/api/bulk-check?names=Datafyno,Nexavo&tlds=com,io,ai"</pre>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><span>JavaScript</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>const res  = await fetch('/api/bulk-check', {
+  method : 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body   : JSON.stringify({ names: ['Datafyno','Nexavo'], tlds: ['com','io','ai'] })
+});
+const data = await res.json();
+data.results.available.forEach(d => console.log(`✅ ${d.domain} → ${d.register_url}`));</pre>
+    </div>
+    <table class="docs-table">
+      <tr><th>Param</th><th>Type</th><th>Required</th><th>Description</th></tr>
+      <tr><td>names</td><td>string/array</td><td><span class="required">required</span></td><td>Comma-separated names (no TLD needed). Max 100.</td></tr>
+      <tr><td>tlds</td><td>string/array</td><td><span class="optional">optional</span></td><td>TLDs to check. Default: <code style="font-family:var(--mono);color:var(--accent)">com</code>. Max 10.</td></tr>
+      <tr><td>include-registered</td><td>bool</td><td><span class="optional">optional</span></td><td>Include taken domains. Default: <code style="font-family:var(--mono);color:var(--accent)">true</code></td></tr>
+    </table>
+  </div>
+
+  <!-- Domain Age Docs -->
+  <div style="margin-top:3rem">
+    <h3 style="font-family:var(--display);font-size:1.3rem;font-weight:700;margin-bottom:.5rem;color:#a78bfa">
+      02 — Domain Age (RDAP)
+    </h3>
+    <p style="color:var(--muted);font-size:.88rem;margin-bottom:1rem">
+      Returns age, registration date, expiry, registrar, nameservers, DNSSEC status. No API key required.
+    </p>
+    <div class="code-block">
+      <div class="code-header"><span>cURL</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>curl "https://your-app.vercel.app/api/domain-age?domain=admin.com"</pre>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><span>Response (key fields)</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>{
+  "age": { "years": 31, "months": 5, "days": 15, "total_days": 11475, "category": "Mature" },
+  "dates": { "registered_human": "November 17, 1994", "expiration_human": "November 16, 2031" },
+  "expiry": { "days_remaining": 2038, "status": "active" },
+  "registrar": { "name": "Amazon Registrar, Inc.", "iana_id": "468" },
+  "nameservers": ["NS-89.AWSDNS-11.COM", ...],
+  "dnssec": { "signed": false }
+}</pre>
+    </div>
+    <table class="docs-table">
+      <tr><th>Param</th><th>Type</th><th>Required</th><th>Description</th></tr>
+      <tr><td>domain</td><td>string</td><td><span class="required">required</span></td><td>Domain to look up. Auto-strips https:// and www.</td></tr>
+    </table>
+  </div>
+
+  <!-- Check Docs -->
+  <div style="margin-top:3rem">
+    <h3 style="font-family:var(--display);font-size:1.3rem;font-weight:700;margin-bottom:.5rem;color:var(--green)">
+      03 — Brand Name Check
+    </h3>
+    <p style="color:var(--muted);font-size:.88rem;margin-bottom:1rem">
+      Checks one brand name across 28 domain extensions + 31 social media platforms in parallel.
+    </p>
+    <div class="code-block">
+      <div class="code-header"><span>cURL</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>curl "https://your-app.vercel.app/api/check?q=mybrand&type=all"</pre>
+    </div>
+    <table class="docs-table">
+      <tr><th>Param</th><th>Type</th><th>Required</th><th>Description</th></tr>
+      <tr><td>q</td><td>string</td><td><span class="required">required</span></td><td>Brand name to check (min 2 chars)</td></tr>
+      <tr><td>type</td><td>string</td><td><span class="optional">optional</span></td><td><code style="font-family:var(--mono);color:var(--accent)">all</code> | <code style="font-family:var(--mono);color:var(--accent)">domains</code> | <code style="font-family:var(--mono);color:var(--accent)">social</code>. Default: all</td></tr>
+      <tr><td>tlds</td><td>string</td><td><span class="optional">optional</span></td><td>Custom TLD list. Default: all 28</td></tr>
+    </table>
+  </div>
+
+  <!-- Deploy block -->
+  <div style="margin-top:3.5rem">
+    <h3 style="font-family:var(--display);font-size:1.3rem;font-weight:700;margin-bottom:1rem">Deploy in 60 seconds</h3>
+    <div class="code-block">
+      <div class="code-header"><span>bash</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>unzip domainkit.zip
+cd domainkit
+npx vercel --prod</pre>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p><strong>DomainKit</strong> — Free, open, no API key required.</p>
+  <p style="margin-top:.5rem">Powered by Verisign sugapi · RDAP · NameCheckerr</p>
+</footer>
+
+<script>
+// ── BASE URL — change this after deploy ─────────────────────────────────────
+const BASE = '';  // e.g. 'https://your-app.vercel.app'
+
+// ── TAB SWITCHING ────────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    const names=['bulk','age','check'];
+    t.classList.toggle('active', names[i]===name);
+  });
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+function setStatus(id, text, cls) {
+  const el=document.getElementById(id);
+  el.textContent=text; el.className='result-status '+cls;
+}
+function setResult(id, text) { document.getElementById(id).textContent=text; }
+function syntaxHighlight(json) { return JSON.stringify(json, null, 2); }
+
+function showSpinner(id) {
+  const el=document.getElementById(id);
+  el.innerHTML='<span class="spin"></span>  Running request...';
+}
+
+// ── BULK CHECK ───────────────────────────────────────────────────────────────
+async function runBulk() {
+  const names = document.getElementById('bulk-names').value.trim();
+  const tlds  = document.getElementById('bulk-tlds').value.trim();
+  if (!names) return;
+
+  setStatus('bulk-status','loading...','status-idle');
+  showSpinner('bulk-result');
+  document.getElementById('bulk-chips').innerHTML='';
+
+  try {
+    const res  = await fetch(BASE+'/api/bulk-check', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ names: names.split(',').map(s=>s.trim()), tlds: tlds.split(',').map(s=>s.trim()) })
+    });
+    const data = await res.json();
+
+    setStatus('bulk-status', res.ok ? `200 OK · ${data.elapsed_ms}ms` : `${res.status} Error`, res.ok?'status-ok':'status-err');
+
+    if (data.results) {
+      const chips=document.getElementById('bulk-chips');
+      const items=[
+        ...data.results.available.map(d=>`<span class="chip chip-avail"><span class="chip-dot"></span>${d.domain}</span>`),
+        ...data.results.registered.map(d=>`<span class="chip chip-taken"><span class="chip-dot"></span>${d.domain}</span>`),
+      ];
+      chips.innerHTML=items.join('');
+    }
+    setResult('bulk-result', syntaxHighlight(data));
+  } catch(e) {
+    setStatus('bulk-status','Network Error','status-err');
+    setResult('bulk-result','Error: '+e.message);
+  }
+}
+
+// ── DOMAIN AGE ───────────────────────────────────────────────────────────────
+async function runAge() {
+  const domain = document.getElementById('age-domain').value.trim();
+  if (!domain) return;
+
+  setStatus('age-status','loading...','status-idle');
+  showSpinner('age-result');
+  document.getElementById('age-card').innerHTML='';
+
+  try {
+    const res  = await fetch(BASE+`/api/domain-age?domain=${encodeURIComponent(domain)}`);
+    const data = await res.json();
+
+    setStatus('age-status', res.ok ? `200 OK · ${data.elapsed_ms}ms` : `${res.status} Error`, res.ok?'status-ok':'status-err');
+
+    if (data.age && data.dates) {
+      const expSt = data.expiry?.status||'unknown';
+      const expColor = expSt==='active'?'var(--green)':expSt==='expired'?'var(--red)':'var(--amber)';
+      document.getElementById('age-card').innerHTML=`
+        <div class="age-card">
+          <div class="age-big">${data.age.formatted}</div>
+          <div class="age-sub">${data.age.category} · ${data.age.total_days.toLocaleString()} total days</div>
+          <div class="age-grid">
+            <div class="age-item"><div class="age-item-label">Registered</div><div class="age-item-val">${data.dates.registered_human||'—'}</div></div>
+            <div class="age-item"><div class="age-item-label">Expires</div><div class="age-item-val" style="color:${expColor}">${data.dates.expiration_human||'—'}</div></div>
+            <div class="age-item"><div class="age-item-label">Registrar</div><div class="age-item-val">${data.registrar?.name||'—'}</div></div>
+            <div class="age-item"><div class="age-item-label">Days Left</div><div class="age-item-val" style="color:${expColor}">${data.expiry?.days_remaining?.toLocaleString()||'—'}</div></div>
+            <div class="age-item"><div class="age-item-label">DNSSEC</div><div class="age-item-val">${data.dnssec?.signed?'✓ Signed':'✗ Unsigned'}</div></div>
+            <div class="age-item"><div class="age-item-label">Nameservers</div><div class="age-item-val">${(data.nameservers||[]).length}</div></div>
+          </div>
+        </div>`;
+    }
+    setResult('age-result', syntaxHighlight(data));
+  } catch(e) {
+    setStatus('age-status','Network Error','status-err');
+    setResult('age-result','Error: '+e.message);
+  }
+}
+
+// ── BRAND CHECK ──────────────────────────────────────────────────────────────
+async function runCheck() {
+  const q    = document.getElementById('check-q').value.trim();
+  const type = document.getElementById('check-type').value;
+  if (!q) return;
+
+  setStatus('check-status','loading...','status-idle');
+  showSpinner('check-result');
+  document.getElementById('check-chips').innerHTML='';
+  document.getElementById('check-summary').innerHTML='';
+
+  try {
+    const res  = await fetch(BASE+`/api/check?q=${encodeURIComponent(q)}&type=${type}`);
+    const data = await res.json();
+
+    setStatus('check-status', res.ok ? `200 OK · ${data.elapsed_ms}ms` : `${res.status} Error`, res.ok?'status-ok':'status-err');
+
+    if (data.summary) {
+      document.getElementById('check-summary').innerHTML=`
+        <div class="summary-bar">
+          <div class="sum-item"><div class="sum-label">Total</div><div class="sum-val cyan">${data.summary.total}</div></div>
+          <div class="sum-item"><div class="sum-label">Available</div><div class="sum-val green">${data.summary.available}</div></div>
+          <div class="sum-item"><div class="sum-label">Taken</div><div class="sum-val red">${data.summary.unavailable}</div></div>
+          <div class="sum-item"><div class="sum-label">Domains Free</div><div class="sum-val green">${data.summary.domains?.available||0}</div></div>
+          <div class="sum-item"><div class="sum-label">Social Free</div><div class="sum-val green">${data.summary.social?.available||0}</div></div>
+        </div>`;
+    }
+
+    if (data.results) {
+      const chips=document.getElementById('check-chips');
+      const items=[
+        ...(data.results.available||[]).map(d=>`<span class="chip chip-avail"><span class="chip-dot"></span>${d.full||d.name}</span>`),
+        ...(data.results.unavailable||[]).map(d=>`<span class="chip chip-taken"><span class="chip-dot"></span>${d.full||d.name}</span>`),
+      ];
+      chips.innerHTML=items.slice(0,40).join('');
+    }
+    setResult('check-result', syntaxHighlight(data));
+  } catch(e) {
+    setStatus('check-status','Network Error','status-err');
+    setResult('check-result','Error: '+e.message);
+  }
+}
+
+// ── COPY CODE ────────────────────────────────────────────────────────────────
+function copyCode(btn) {
+  const code=btn.closest('.code-block').querySelector('pre').textContent;
+  navigator.clipboard.writeText(code).then(()=>{ btn.textContent='copied!'; setTimeout(()=>btn.textContent='copy',1500); });
+}
+
+// ── ENTER KEY ────────────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key==='Enter') {
+    const activePanel=document.querySelector('.panel.active');
+    if (!activePanel) return;
+    const id=activePanel.id;
+    if (id==='tab-bulk')  runBulk();
+    if (id==='tab-age')   runAge();
+    if (id==='tab-check') runCheck();
+  }
+});
+
+// ── SCROLL REVEAL ────────────────────────────────────────────────────────────
+const io=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

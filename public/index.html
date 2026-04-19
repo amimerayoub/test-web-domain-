@@ -456,6 +456,22 @@ footer strong { color:var(--text); }
       </div>
     </div>
 
+    <div class="api-card" style="border-color:rgba(0,255,136,.15);grid-column:1/-1">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),var(--accent),transparent)"></div>
+      <span class="api-num">05 / Domain Info</span>
+      <h3>Full Domain Intelligence <span style="font-size:.75rem;font-weight:500;padding:.2rem .6rem;border-radius:999px;background:rgba(0,255,136,.12);color:var(--green);border:1px solid rgba(0,255,136,.25);vertical-align:middle;margin-left:.5rem">NEW</span></h3>
+      <p>All-in-one endpoint — aggregates WHOIS (RDAP), live DNS records, TLD availability variants, and HTTP reachability in a single call. Choose which modules to run via the <code style="font-family:var(--mono);font-size:.82rem;color:var(--accent)">include</code> param.</p>
+      <code class="api-endpoint">GET /api/info?domain=example.com&include=whois,dns,availability,reachability</code>
+      <div class="tags">
+        <span class="tag green">RDAP WHOIS</span>
+        <span class="tag cyan">Live DNS</span>
+        <span class="tag purple">TLD Variants</span>
+        <span class="tag" style="color:var(--amber);border-color:rgba(255,184,48,.25);background:rgba(255,184,48,.08)">Reachability</span>
+        <span class="tag">Smart Summary</span>
+        <span class="tag">Modular</span>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -470,6 +486,7 @@ footer strong { color:var(--text); }
     <button class="tab"        onclick="switchTab('age')">📅 Domain Age</button>
     <button class="tab"        onclick="switchTab('check')">🔍 Brand Check</button>
     <button class="tab"        onclick="switchTab('history')">🕒 DNS History</button>
+    <button class="tab"        onclick="switchTab('info')" style="border-color:rgba(0,255,136,.3);color:var(--green)">✦ Domain Info</button>
   </div>
 
   <!-- BULK TAB -->
@@ -547,6 +564,29 @@ footer strong { color:var(--text); }
         <span class="result-status status-idle" id="hist-status">idle</span>
       </div>
       <div class="result-body" id="hist-result">// Press Run to fetch DNS history...</div>
+    </div>
+  </div>
+
+  <!-- INFO TAB -->
+  <div id="tab-info" class="panel">
+    <div class="form-row">
+      <input type="text" id="info-domain" value="example.com" placeholder="Domain: example.com"/>
+      <button class="btn-run" onclick="runInfo()" style="background:linear-gradient(135deg,var(--green),var(--accent));color:#000">Run</button>
+    </div>
+    <div class="form-row" style="gap:.5rem;flex-wrap:wrap">
+      <label style="font-size:.8rem;color:var(--muted);align-self:center">Modules:</label>
+      <label style="display:flex;align-items:center;gap:.4rem;font-size:.84rem;cursor:pointer"><input type="checkbox" id="info-whois"        checked> WHOIS</label>
+      <label style="display:flex;align-items:center;gap:.4rem;font-size:.84rem;cursor:pointer"><input type="checkbox" id="info-dns"          checked> DNS</label>
+      <label style="display:flex;align-items:center;gap:.4rem;font-size:.84rem;cursor:pointer"><input type="checkbox" id="info-availability" checked> Availability</label>
+      <label style="display:flex;align-items:center;gap:.4rem;font-size:.84rem;cursor:pointer"><input type="checkbox" id="info-reachability" checked> Reachability</label>
+    </div>
+    <div id="info-summary-card"></div>
+    <div class="result-box" style="margin-top:1rem">
+      <div class="result-topbar">
+        <span class="result-label">GET /api/info</span>
+        <span class="result-status status-idle" id="info-status">idle</span>
+      </div>
+      <div class="result-body" id="info-result">// Press Run to fetch full domain intelligence...</div>
     </div>
   </div>
 
@@ -716,6 +756,80 @@ npx vercel --prod</pre>
   </div>
 </section>
 
+<!-- INFO API DOCS -->
+<section id="docs-info" class="reveal" style="padding-top:0">
+  <div style="margin-top:2.5rem">
+    <h3 style="font-family:var(--display);font-size:1.3rem;font-weight:700;margin-bottom:.5rem;color:var(--green)">
+      05 — Domain Full Info <span style="font-size:.72rem;padding:.2rem .6rem;border-radius:999px;background:rgba(0,255,136,.12);color:var(--green);border:1px solid rgba(0,255,136,.25);vertical-align:middle;font-weight:500;margin-left:.5rem">NEW</span>
+    </h3>
+    <p style="color:var(--muted);font-size:.88rem;margin-bottom:1rem">
+      All-in-one domain intelligence. Run 1 to 4 modules per request: <code style="font-family:var(--mono);color:var(--accent)">whois</code>, <code style="font-family:var(--mono);color:var(--accent)">dns</code>, <code style="font-family:var(--mono);color:var(--accent)">availability</code>, <code style="font-family:var(--mono);color:var(--accent)">reachability</code>. All run concurrently.
+    </p>
+    <div class="code-block">
+      <div class="code-header"><span>cURL</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>curl "https://your-app.vercel.app/api/info?domain=example.com"
+# or specific modules only:
+curl "https://your-app.vercel.app/api/info?domain=example.com&include=whois,dns"</pre>
+    </div>
+    <div class="code-block" style="margin-top:1rem">
+      <div class="code-header"><span>JavaScript</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>// All modules (GET)
+const res  = await fetch('/api/info?domain=example.com');
+const data = await res.json();
+
+console.log(data.summary);          // quick overview
+console.log(data.whois.age);        // registration age
+console.log(data.dns.records.mx);   // MX records
+console.log(data.availability.available); // free TLD variants
+console.log(data.reachability.reachable); // is site online?
+
+// Specific modules (POST)
+const res2 = await fetch('/api/info', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ domain: 'example.com', include: ['whois','dns'] })
+});
+const data2 = await res2.json();</pre>
+    </div>
+    <div class="code-block" style="margin-top:1rem">
+      <div class="code-header"><span>Response shape</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>{
+  "success": true,
+  "domain": "example.com",
+  "modules_run": ["whois","dns","availability","reachability"],
+  "elapsed_ms": 843,
+
+  "summary": {
+    "domain":                "example.com",
+    "registered":            true,
+    "age":                   "29 years, 8 months, 3 days",
+    "age_category":          "Mature",
+    "registrar":             "MarkMonitor Inc.",
+    "expires":               "August 13, 2025",
+    "expiry_status":         "active",
+    "dns_provider":          "Cloudflare",
+    "mail_provider":         "Google Workspace",
+    "has_ipv6":              true,
+    "reachable":             true,
+    "https":                 true,
+    "server":                "ECS (nyb/1D10)",
+    "tld_variants_available":["example.io","example.xyz","example.app"]
+  },
+
+  "whois": { "registered": true, "age": {...}, "dates": {...}, "registrar": {...}, "nameservers": [...] },
+  "dns":   { "records": { "a": [...], "mx": [...], "txt": [...], "ns": [...] }, "analysis": { "dns_provider": "...", "mail_provider": "..." } },
+  "availability": { "available": [ { "domain": "example.io", "tld": "io", "register_url": "..." } ], "registered": [...] },
+  "reachability": { "reachable": true, "status_code": 200, "uses_https": true, "server": "...", "response_ms": 213 }
+}</pre>
+    </div>
+    <table class="docs-table">
+      <tr><th>Param</th><th>Type</th><th>Required</th><th>Description</th></tr>
+      <tr><td>domain</td><td>string</td><td><span class="required">required</span></td><td>Domain to query (e.g. <code style="font-family:var(--mono)">example.com</code>)</td></tr>
+      <tr><td>include</td><td>string / array</td><td><span class="optional">optional</span></td><td>Comma-separated modules: <code style="font-family:var(--mono)">whois,dns,availability,reachability</code>. Defaults to <code style="font-family:var(--mono)">all</code>.</td></tr>
+    </table>
+  </div>
+</section>
+
 <footer>
   <p><strong>DomainKit</strong> — Free, open, no API key required.</p>
   <p style="margin-top:.5rem">Powered by Verisign sugapi · RDAP · NameCheckerr</p>
@@ -728,7 +842,7 @@ const BASE = '';  // e.g. 'https://your-app.vercel.app'
 // ── TAB SWITCHING ────────────────────────────────────────────────────────────
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach((t,i) => {
-    const names=['bulk','age','check','history'];
+    const names=['bulk','age','check','history','info'];
     t.classList.toggle('active', names[i]===name);
   });
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -864,6 +978,91 @@ async function runCheck() {
   }
 }
 
+// ── INFO ─────────────────────────────────────────────────────────────────────
+async function runInfo() {
+  const domain = document.getElementById('info-domain').value.trim();
+  if (!domain) return;
+
+  const modules = ['whois','dns','availability','reachability']
+    .filter(m => document.getElementById('info-'+m)?.checked);
+  if (!modules.length) { alert('Select at least one module.'); return; }
+
+  setStatus('info-status','loading...','status-idle');
+  showSpinner('info-result');
+  document.getElementById('info-summary-card').innerHTML = '';
+
+  try {
+    const params = new URLSearchParams({ domain, include: modules.join(',') });
+    const res    = await fetch(BASE + '/api/info?' + params.toString());
+    const data   = await res.json();
+
+    setStatus('info-status',
+      res.ok ? `200 OK · ${data.elapsed_ms}ms` : `${res.status} Error`,
+      res.ok ? 'status-ok' : 'status-err'
+    );
+
+    if (data.summary) {
+      const s = data.summary;
+      const regColor  = s.registered === true  ? 'var(--red)'   : s.registered === false ? 'var(--green)' : 'var(--muted)';
+      const regLabel  = s.registered === true  ? 'Registered'   : s.registered === false ? 'Available'    : 'Unknown';
+      const expColor  = s.expiry_status === 'active' ? 'var(--green)' : s.expiry_status === 'expired' ? 'var(--red)' : 'var(--amber)';
+      const reachIcon = s.reachable ? '✓' : '✗';
+      const reachCol  = s.reachable ? 'var(--green)' : 'var(--red)';
+      const httpsIcon = s.https ? '🔒' : '⚠';
+
+      const availDomains = (s.tld_variants_available || []).slice(0,6)
+        .map(d => `<span style="font-family:var(--mono);font-size:.72rem;padding:.2rem .6rem;border-radius:6px;background:rgba(0,255,136,.1);color:var(--green);border:1px solid rgba(0,255,136,.2)">${d}</span>`)
+        .join('');
+
+      document.getElementById('info-summary-card').innerHTML = `
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.75rem;margin:1rem 0;padding:1.25rem;background:var(--bg3);border:1px solid var(--border2);border-radius:12px">
+          <div>
+            <div style="font-size:.72rem;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.35rem">Status</div>
+            <div style="font-size:1rem;font-weight:700;color:${regColor}">${regLabel}</div>
+          </div>
+          ${s.age ? `<div>
+            <div style="font-size:.72rem;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.35rem">Age</div>
+            <div style="font-size:.9rem;font-weight:600">${s.age}</div>
+            <div style="font-size:.72rem;color:var(--muted)">${s.age_category||''}</div>
+          </div>` : ''}
+          ${s.registrar ? `<div>
+            <div style="font-size:.72rem;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.35rem">Registrar</div>
+            <div style="font-size:.82rem;font-weight:500">${s.registrar}</div>
+          </div>` : ''}
+          ${s.expires ? `<div>
+            <div style="font-size:.72rem;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.35rem">Expires</div>
+            <div style="font-size:.82rem;font-weight:600;color:${expColor}">${s.expires}</div>
+          </div>` : ''}
+          ${s.dns_provider ? `<div>
+            <div style="font-size:.72rem;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.35rem">DNS</div>
+            <div style="font-size:.82rem;font-weight:500;color:var(--accent)">${s.dns_provider}</div>
+          </div>` : ''}
+          ${s.mail_provider ? `<div>
+            <div style="font-size:.72rem;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.35rem">Mail</div>
+            <div style="font-size:.82rem;font-weight:500;color:var(--accent2)">${s.mail_provider}</div>
+          </div>` : ''}
+          ${s.reachable !== null ? `<div>
+            <div style="font-size:.72rem;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.35rem">Online</div>
+            <div style="font-size:.9rem;font-weight:700;color:${reachCol}">${reachIcon} ${s.reachable ? 'Yes' : 'No'}</div>
+            <div style="font-size:.72rem;color:var(--muted)">${httpsIcon} ${s.https ? 'HTTPS' : 'HTTP only'}</div>
+          </div>` : ''}
+          ${s.server ? `<div>
+            <div style="font-size:.72rem;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.35rem">Server</div>
+            <div style="font-size:.78rem;font-family:var(--mono);color:var(--muted)">${s.server}</div>
+          </div>` : ''}
+        </div>
+        ${availDomains ? `<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem">
+          <span style="font-size:.72rem;color:var(--muted);align-self:center">Also free:</span>${availDomains}
+        </div>` : ''}`;
+    }
+
+    setResult('info-result', syntaxHighlight(data));
+  } catch(e) {
+    setStatus('info-status','Network Error','status-err');
+    setResult('info-result','Error: '+e.message);
+  }
+}
+
 // ── COPY CODE ────────────────────────────────────────────────────────────────
 function copyCode(btn) {
   const code=btn.closest('.code-block').querySelector('pre').textContent;
@@ -967,10 +1166,11 @@ document.addEventListener('keydown', e => {
     const activePanel=document.querySelector('.panel.active');
     if (!activePanel) return;
     const id=activePanel.id;
-    if (id==='tab-bulk')  runBulk();
-    if (id==='tab-age')   runAge();
-    if (id==='tab-check') runCheck();
+    if (id==='tab-bulk')    runBulk();
+    if (id==='tab-age')     runAge();
+    if (id==='tab-check')   runCheck();
     if (id==='tab-history') runHistory();
+    if (id==='tab-info')    runInfo();
   }
 });
 

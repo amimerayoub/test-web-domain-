@@ -1,29 +1,63 @@
 {
   "version": 2,
   "functions": {
-    "api/bulk-check.js" : { "memory": 256, "maxDuration": 20 },
-    "api/domain-age.js" : { "memory": 256, "maxDuration": 15 },
-    "api/check.js"      : { "memory": 256, "maxDuration": 30 }
+    "api/bulk-check.js": {
+      "memory": 256,
+      "maxDuration": 20
+    },
+    "api/domain-age.js": {
+      "memory": 256,
+      "maxDuration": 15
+    },
+    "api/check.js": {
+      "memory": 256,
+      "maxDuration": 30
+    },
+    "api/dns-history.js": {
+      "memory": 512,
+      "maxDuration": 30
+    }
   },
   "headers": [
     {
       "source": "/api/(.*)",
       "headers": [
-        { "key": "Access-Control-Allow-Origin",  "value": "*" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, OPTIONS" },
-        { "key": "Access-Control-Allow-Headers", "value": "Content-Type" }
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type"
+        }
       ]
     },
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options",        "value": "DENY" }
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        }
       ]
     }
   ],
   "rewrites": [
-    { "source": "/",          "destination": "/public/index.html" },
-    { "source": "/docs",      "destination": "/public/index.html" }
+    {
+      "source": "/",
+      "destination": "/public/index.html"
+    },
+    {
+      "source": "/docs",
+      "destination": "/public/index.html"
+    }
   ]
 }

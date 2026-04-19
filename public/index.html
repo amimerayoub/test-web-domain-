@@ -388,7 +388,7 @@ footer strong { color:var(--text); }
     <a href="#apis" class="btn-outline">View APIs</a>
   </div>
   <div class="stats">
-    <div class="stat"><div class="stat-val">3</div><div class="stat-lab">APIs</div></div>
+    <div class="stat"><div class="stat-val">4</div><div class="stat-lab">APIs</div></div>
     <div class="stat"><div class="stat-val">59</div><div class="stat-lab">Platforms Checked</div></div>
     <div class="stat"><div class="stat-val">0</div><div class="stat-lab">API Keys Needed</div></div>
   </div>
@@ -441,6 +441,21 @@ footer strong { color:var(--text); }
       </div>
     </div>
 
+    <div class="api-card" style="border-color:rgba(255,184,48,.15)">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--amber),transparent)"></div>
+      <span class="api-num">04 / DNS History</span>
+      <h3>DNS History &amp; Timeline</h3>
+      <p>Track full DNS change history — nameserver changes, domain drops, re-registrations, parking events. Uses 5 sources in parallel with Cloudflare bypass.</p>
+      <code class="api-endpoint">GET /api/dns-history?domain=example.com</code>
+      <div class="tags">
+        <span class="tag" style="color:var(--amber);border-color:rgba(255,184,48,.25);background:rgba(255,184,48,.08)">5 Sources</span>
+        <span class="tag green">Live DNS</span>
+        <span class="tag cyan">NS Timeline</span>
+        <span class="tag">IP History</span>
+        <span class="tag purple">SecurityTrails</span>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -454,6 +469,7 @@ footer strong { color:var(--text); }
     <button class="tab active" onclick="switchTab('bulk')">⚡ Bulk Availability</button>
     <button class="tab"        onclick="switchTab('age')">📅 Domain Age</button>
     <button class="tab"        onclick="switchTab('check')">🔍 Brand Check</button>
+    <button class="tab"        onclick="switchTab('history')">🕒 DNS History</button>
   </div>
 
   <!-- BULK TAB -->
@@ -514,6 +530,26 @@ footer strong { color:var(--text); }
       <div class="result-body" id="check-result">// Press Run to check brand availability...</div>
     </div>
   </div>
+
+  <!-- DNS HISTORY TAB -->
+  <div id="tab-history" class="panel">
+    <div class="form-row">
+      <input type="text" id="hist-domain" value="constructionlawyerhouston.com" placeholder="Domain: example.com"/>
+      <button class="btn-run" onclick="runHistory()">Run</button>
+    </div>
+    <div class="form-row">
+      <input type="text" id="hist-stkey" placeholder="SecurityTrails API key (optional — for full NS history)"/>
+    </div>
+    <div id="hist-timeline"></div>
+    <div class="result-box" style="margin-top:1rem">
+      <div class="result-topbar">
+        <span class="result-label">GET /api/dns-history</span>
+        <span class="result-status status-idle" id="hist-status">idle</span>
+      </div>
+      <div class="result-body" id="hist-result">// Press Run to fetch DNS history...</div>
+    </div>
+  </div>
+
 </section>
 
 <!-- DOCS SECTION -->
@@ -603,6 +639,71 @@ data.results.available.forEach(d => console.log(`✅ ${d.domain} → ${d.registe
     </table>
   </div>
 
+  <!-- DNS History Docs -->
+  <div style="margin-top:3rem">
+    <h3 style="font-family:var(--display);font-size:1.3rem;font-weight:700;margin-bottom:.5rem;color:var(--amber)">
+      04 — DNS History &amp; Timeline
+    </h3>
+    <p style="color:var(--muted);font-size:.88rem;margin-bottom:1rem">
+      Full DNS change history — NS changes, drops, re-registrations, parking detection.
+      Uses 5 parallel sources. Add a free SecurityTrails key for full NS history (50 req/month).
+    </p>
+    <div class="code-block">
+      <div class="code-header"><span>cURL</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>curl "https://your-app.vercel.app/api/dns-history?domain=constructionlawyerhouston.com"
+
+# With SecurityTrails key for full NS history:
+curl "https://your-app.vercel.app/api/dns-history?domain=example.com&st_key=YOUR_KEY"</pre>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><span>Response (key fields)</span><button class="copy-btn" onclick="copyCode(this)">copy</button></div>
+      <pre>{
+  "summary": {
+    "headline": "example.com — 5 changes and 2 drops recorded over 11 years",
+    "is_parked_now": false,
+    "has_parked_before": true,
+    "current_registrar": "Spaceship Registrar",
+    "current_ns": ["launch1.spaceship.net", "launch2.spaceship.net"],
+    "has_email": false,
+    "total_changes": 5,
+    "total_drops": 2
+  },
+  "live": {
+    "nameservers": ["launch1.spaceship.net"],
+    "a_records": [],
+    "mx_records": [],
+    "meta": { "is_parked": false, "has_email": false }
+  },
+  "timeline": {
+    "first_seen": "2014-06-07",
+    "total_changes": 5,
+    "total_drops": 2,
+    "age_years": 11,
+    "events": [
+      { "date": "2014-06-07", "type": "created",   "label": "Domain first seen — nameservers added", "ns_after": "ns37.domaincontrol.com" },
+      { "date": "2023-07-19", "type": "dropped",   "label": "Domain dropped — nameservers removed" },
+      { "date": "2025-07-12", "type": "parked",    "label": "Domain parked at Afternic (GoDaddy Aftermarket)", "is_parking": true },
+      { "date": "2026-04-15", "type": "created",   "label": "Domain re-registered — nameservers added" }
+    ]
+  },
+  "ip_history": [ { "date": "2024-01-01", "ip": "1.2.3.4", "owner": "Cloudflare" } ],
+  "sources": {
+    "live_dns": true, "hackertarget": true, "viewdns": true,
+    "dnshistory_org": false, "st_key_provided": false
+  }
+}</pre>
+    </div>
+    <table class="docs-table">
+      <tr><th>Param</th><th>Type</th><th>Required</th><th>Description</th></tr>
+      <tr><td>domain</td><td>string</td><td><span class="required">required</span></td><td>Domain to look up</td></tr>
+      <tr><td>st_key</td><td>string</td><td><span class="optional">optional</span></td><td>SecurityTrails API key for full NS history. <a href="https://securitytrails.com" target="_blank" style="color:var(--accent)">Free at securitytrails.com</a> (50 req/month)</td></tr>
+    </table>
+    <div style="margin-top:1rem;padding:.75rem 1rem;background:rgba(255,184,48,.06);border:1px solid rgba(255,184,48,.15);border-radius:8px;font-size:.82rem;color:var(--muted)">
+      <strong style="color:var(--amber)">Sources used in parallel:</strong>
+      Google DNS (live records) · HackerTarget (DNS lookup) · SecurityTrails (NS history, optional key) · ViewDNS.info (IP history) · dnshistory.org (HTML scrape, best-effort)
+    </div>
+  </div>
+
   <!-- Deploy block -->
   <div style="margin-top:3.5rem">
     <h3 style="font-family:var(--display);font-size:1.3rem;font-weight:700;margin-bottom:1rem">Deploy in 60 seconds</h3>
@@ -627,7 +728,7 @@ const BASE = '';  // e.g. 'https://your-app.vercel.app'
 // ── TAB SWITCHING ────────────────────────────────────────────────────────────
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach((t,i) => {
-    const names=['bulk','age','check'];
+    const names=['bulk','age','check','history'];
     t.classList.toggle('active', names[i]===name);
   });
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -769,6 +870,97 @@ function copyCode(btn) {
   navigator.clipboard.writeText(code).then(()=>{ btn.textContent='copied!'; setTimeout(()=>btn.textContent='copy',1500); });
 }
 
+
+// ── DNS HISTORY ──────────────────────────────────────────────────────────────
+async function runHistory() {
+  const domain = document.getElementById('hist-domain').value.trim();
+  const stKey  = document.getElementById('hist-stkey').value.trim();
+  if (!domain) return;
+
+  setStatus('hist-status','loading...','status-idle');
+  showSpinner('hist-result');
+  document.getElementById('hist-timeline').innerHTML='';
+
+  try {
+    const params = new URLSearchParams({ domain });
+    if (stKey) params.append('st_key', stKey);
+
+    const res  = await fetch(BASE+'/api/dns-history?'+params.toString());
+    const data = await res.json();
+
+    setStatus('hist-status', res.ok ? `200 OK · ${data.elapsed_ms}ms` : `${res.status} Error`, res.ok?'status-ok':'status-err');
+
+    if (data.summary) {
+      const s = data.summary;
+      let html = '';
+
+      // Headline
+      if (s.headline) {
+        html += `<div style="font-family:var(--display);font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:.75rem;padding:.85rem 1.1rem;background:var(--bg3);border:1px solid var(--border);border-radius:10px;">${s.headline}</div>`;
+      }
+
+      // Parking badge
+      if (s.is_parked_now) {
+        html += `<div style="margin-bottom:.75rem;padding:.5rem 1rem;background:rgba(255,184,48,.08);border:1px solid rgba(255,184,48,.2);border-radius:8px;font-size:.82rem;color:var(--amber)">⚠ This domain is currently <strong>parked</strong> — Registrar: ${s.current_registrar||'Unknown'}</div>`;
+      }
+      if (s.has_parked_before && !s.is_parked_now) {
+        html += `<div style="margin-bottom:.75rem;padding:.5rem 1rem;background:rgba(255,184,48,.05);border:1px solid rgba(255,184,48,.1);border-radius:8px;font-size:.82rem;color:var(--muted)">ℹ This domain has been parked before.</div>`;
+      }
+
+      // Live NS
+      if (s.current_ns?.length) {
+        html += `<div style="margin-bottom:.75rem;font-size:.82rem;color:var(--muted)">Current NS: ${s.current_ns.map(n=>`<code style="font-family:var(--mono);color:var(--accent);font-size:.78rem">${n}</code>`).join(' ')} ${s.has_email?'• <span style=\'color:var(--green)\'>✓ Email configured</span>':''}</div>`;
+      }
+
+      // Timeline events
+      if (data.timeline?.events?.length) {
+        html += '<div style="display:flex;flex-direction:column;gap:0;margin-top:.5rem">';
+        let lastYear = null;
+        for (const ev of data.timeline.events) {
+          const dt   = new Date(ev.date);
+          const year = dt.getFullYear();
+          const mon  = dt.toLocaleString('en-US',{month:'short'});
+          const day  = dt.getDate();
+
+          if (year !== lastYear) {
+            html += `<div style="font-family:var(--display);font-size:1.4rem;font-weight:800;color:var(--muted);opacity:.35;margin:1rem 0 .25rem;padding-left:.5rem">${year}</div>`;
+            lastYear = year;
+          }
+
+          const colors = { created:'var(--green)', dropped:'var(--red)', parked:'var(--amber)', ns_change:'var(--accent)' };
+          const icons  = { created:'●', dropped:'○', parked:'P', ns_change:'→' };
+          const col    = colors[ev.type]||'var(--muted)';
+          const icon   = icons[ev.type]||'·';
+
+          html += `<div style="display:flex;gap:1rem;padding:.65rem .75rem;border-left:2px solid ${col}22;margin-left:1rem;position:relative">
+            <div style="position:absolute;left:-7px;top:50%;transform:translateY(-50%);width:12px;height:12px;border-radius:50%;background:${col};flex-shrink:0;box-shadow:0 0 8px ${col}66"></div>
+            <div style="min-width:80px;font-family:var(--mono);font-size:.72rem;color:var(--muted);padding-top:.1rem">${mon} ${day}</div>
+            <div style="flex:1">
+              <div style="font-size:.85rem;font-weight:500;color:${col};margin-bottom:.2rem">${ev.label}</div>
+              ${ev.ns_after?`<div style="font-family:var(--mono);font-size:.72rem;color:var(--muted)">→ ${ev.ns_after}</div>`:''}
+              ${ev.ns_before?`<div style="font-family:var(--mono);font-size:.7rem;color:rgba(255,255,255,.2)">← ${ev.ns_before}</div>`:''}
+              ${ev.owner?`<div style="font-size:.7rem;color:rgba(255,255,255,.35);margin-top:.1rem">${ev.owner}</div>`:''}
+            </div>
+          </div>`;
+        }
+        html += '</div>';
+      } else if (!data.ns_history) {
+        html += `<div style="padding:1rem;color:var(--muted);font-size:.85rem;background:var(--bg3);border:1px solid var(--border);border-radius:8px;margin-top:.5rem">
+          ℹ No NS history found from free sources. Add a SecurityTrails API key for full history.<br>
+          <a href="https://securitytrails.com" target="_blank" style="color:var(--accent);font-size:.8rem">Get free SecurityTrails key (50 req/month)</a>
+        </div>`;
+      }
+
+      document.getElementById('hist-timeline').innerHTML = html;
+    }
+
+    setResult('hist-result', syntaxHighlight(data));
+  } catch(e) {
+    setStatus('hist-status','Network Error','status-err');
+    setResult('hist-result','Error: '+e.message);
+  }
+}
+
 // ── ENTER KEY ────────────────────────────────────────────────────────────────
 document.addEventListener('keydown', e => {
   if (e.key==='Enter') {
@@ -778,6 +970,7 @@ document.addEventListener('keydown', e => {
     if (id==='tab-bulk')  runBulk();
     if (id==='tab-age')   runAge();
     if (id==='tab-check') runCheck();
+    if (id==='tab-history') runHistory();
   }
 });
 
